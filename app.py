@@ -1,19 +1,27 @@
 from transformers import pipeline
 import gradio as gr
 
-# Load the fake news detection model from Hugging Face
+# Load model
 classifier = pipeline("text-classification", model="mrm8488/bert-tiny-finetuned-fake-news-detection")
 
-# Define prediction function
+# Label decoding
+label_map = {
+    "LABEL_0": "REAL",
+    "LABEL_1": "FAKE"
+}
+
+# Prediction function
 def detect_fake_news(text):
     if not text.strip():
         return "Please enter a news statement."
     result = classifier(text)[0]
-    label = result['label'].lower()
+    label = result['label']
+    prediction = label_map.get(label, "UNKNOWN")
     score = round(result['score'] * 100, 2)
-    if "fake" in label:
+
+    if prediction == "FAKE":
         return f"🟥 FAKE NEWS ({score}%)"
-    elif "real" in label:
+    elif prediction == "REAL":
         return f"🟩 REAL NEWS ({score}%)"
     else:
         return f"⚠️ Unknown label: {label} ({score}%)"
@@ -24,8 +32,8 @@ iface = gr.Interface(
     inputs=gr.Textbox(lines=4, placeholder="Enter a news statement here...", label="News Statement"),
     outputs=gr.Text(label="Prediction"),
     title="📰 Fake News Detector",
-    description="Enter a news headline or claim to check whether it's likely FAKE or REAL using a Hugging Face model.",
+    description="Enter a news headline or statement to check whether it's likely FAKE or REAL using a Hugging Face BERT model.",
 )
 
-# Launch the app with public sharing
+# Run the app with public link
 iface.launch(share=True)
