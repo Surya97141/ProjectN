@@ -1,45 +1,51 @@
+# Import necessary libraries
 from transformers import pipeline
 import gradio as gr
 
-# Load zero-shot classifier
-classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+# zero-shot classification model
+news_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
 
-# Updated labels for more accuracy
-labels = ["true", "false"]
+# Define classification labels
+categories = ["true", "false"]
 
-# Detection function
-def detect_truth(text):
-    if not text.strip():
-        return "⚠️ Please enter a news statement."
+#function for fake news detection
+def classify_news(statement):
+    #  Handle empty input
+    if not statement.strip():
+        return "⚠️ Please enter a valid news statement."
     
-    result = classifier(text, labels)
-    top_label = result["labels"][0]
-    score = result["scores"][0]
+    #  Run classification
+    prediction = news_classifier(statement, categories)
+    
+    #  Extract top prediction
+    predicted_label = prediction["labels"][0]  # Most probable label
+    confidence_score = prediction["scores"][0]  # Associated confidence
 
-    if top_label == "true":
-        return f"✅ LIKELY TRUE ({score * 100:.2f}%)"
+    # ✅ Format response based on prediction
+    if predicted_label == "true":
+        return f"✅ LIKELY TRUE ({confidence_score * 100:.2f}%)"
     else:
-        return f"❌ LIKELY FALSE ({score * 100:.2f}%)"
+        return f"❌ LIKELY FALSE ({confidence_score * 100:.2f}%)"
 
-# Sample test cases
-examples = [
-    ["Eating chocolate daily causes a 50% increase in IQ, new study reveals."],
-    ["The Eiffel Tower is located in France."],
+#  Example news claims for testing
+test_statements = [
+    ["Eating chocolate daily increases IQ by 50%."],
+    ["The Eiffel Tower is in France."],
     ["The moon is made of cheese."],
-    ["COVID-19 vaccines are effective in reducing severe illness."],
-    ["Drinking bleach can cure viral infections."],
+    ["COVID-19 vaccines reduce severe illness."],
+    ["Drinking bleach cures infections."],
     ["Barack Obama served two terms as U.S. President."],
 ]
 
-# Gradio UI
-interface = gr.Interface(
-    fn=detect_truth,
-    inputs=gr.Textbox(lines=3, placeholder="Enter a news headline or claim...", label="News Statement"),
+#  Create the Gradio interface
+news_checker = gr.Interface(
+    fn=classify_news,  # Function to process input
+    inputs=gr.Textbox(lines=3, placeholder="Enter a news claim...", label="News Statement"),
     outputs=gr.Textbox(label="Prediction"),
-    title="🔍 Fake News / Truth Detector (Zero-Shot)",
-    description="Uses zero-shot classification (BART model) to estimate whether a claim is likely true or false. ⚠️ This is not a fact-checking engine — results may be inaccurate.",
-    examples=examples
+    title="📰 Fake News Detector",
+    description="Uses a zero-shot classification model (BART) to assess the likelihood of truthfulness. ⚠️ Not a certified fact-checking tool.",
+    examples=test_statements
 )
 
-# Launch with shareable link
-interface.launch(share=True)
+#  Launch the interactive app
+news_checker.launch(share=True)
