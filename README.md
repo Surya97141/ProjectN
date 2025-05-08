@@ -1,5 +1,5 @@
 ---
-title: Fakenews01
+title: Fakenews
 emoji: 🏆
 colorFrom: pink
 colorTo: indigo
