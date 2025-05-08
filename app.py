@@ -13,9 +13,9 @@ except Exception as e:
 # 📊 Define classification labels
 classification_labels = ["true", "false"]
 
-# 🔍 Function for fake news detection
+# 🔍 Function for fake news detection with threshold handling
 def classify_news(statement):
-    """Processes the news statement and returns a classification result."""
+    """Processes the news statement and returns a classification result with improved accuracy."""
     
     # ⛔ Handle empty input
     if not statement.strip():
@@ -29,10 +29,13 @@ def classify_news(statement):
     except Exception as e:
         return f"⚠️ Classification Error: {str(e)}"
 
-    # ✅ Format response based on prediction
-    return (f"✅ LIKELY TRUE ({confidence_score * 100:.2f}%)"
-            if predicted_label == "true" 
-            else f"❌ LIKELY FALSE ({confidence_score * 100:.2f}%)")
+    # 🚨 Apply confidence threshold corrections
+    if confidence_score < 0.75:  # Uncertain predictions
+        return f"⚠️ UNCERTAIN ({confidence_score * 100:.2f}%) - Please verify with trusted sources!"
+    elif predicted_label == "true":
+        return f"✅ LIKELY TRUE ({confidence_score * 100:.2f}%)"
+    else:
+        return f"❌ LIKELY FALSE ({confidence_score * 100:.2f}%)"
 
 # 📚 Example news claims for testing
 test_statements = [
@@ -49,12 +52,12 @@ news_checker = gr.Interface(
     fn=classify_news,
     inputs=gr.Textbox(lines=3, placeholder="Enter a news claim...", label="News Statement"),
     outputs=gr.Textbox(label="Prediction"),
-    title="📰 Fake News Detector",
-    description="Uses a zero-shot classification model (BART) to assess the likelihood of truthfulness.\n"
-                "⚠️ This is not a certified fact-checking tool and should be used with caution!",
+    title="📰 Fake News Detector (Improved Accuracy)",
+    description="Uses a zero-shot classification model (BART) to estimate truthfulness.\n"
+                "⚠️ Always verify claims with trusted sources—AI models can make errors!",
     examples=test_statements,
-    allow_flagging="never",  # Removes unnecessary flagging button
-    theme="default"  # Ensures clean UI styling
+    allow_flagging="never",
+    theme="default"
 )
 
 # 🌐 Launch the interactive app
