@@ -5,27 +5,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (newsClaim) {
       // API call to your Gradio backend hosted on Hugging Face
-      fetch("https://su07rya-fakenews01.hf.space/run/predict", {
+      fetch("https://su07rya-fakenews01.hf.space/gradio_api/run/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ 
-          "data": [newsClaim]    // Gradio expects data as a list
+        body: JSON.stringify({
+          "data": [newsClaim]  // Gradio expects data as a list
         })
       })
       .then(async response => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        
-        // Debugging output to check the structure
+
         const data = await response.json();
         console.log("API Response:", data);
 
         // Checking if data is in the expected format
         if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
-          document.getElementById('result').textContent = data.data[0];
+          document.getElementById('result').textContent = data.data[0];  // Display the prediction result
         } else {
           console.error("Unexpected response format:", data);
           document.getElementById('result').textContent = "Unexpected response format.";
