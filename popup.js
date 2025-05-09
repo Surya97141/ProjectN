@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (newsClaim) {
       // API call to your Gradio backend hosted on Hugging Face
-      fetch("https://su07rya-fakenews01.hf.space/gradio_api/run/predict", {
+      fetch("https://su07rya-fakenews01.hf.space/api/predict", {   // Corrected the API endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(async response => {
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          // Enhanced error message with status and statusText
+          throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -24,15 +25,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Checking if data is in the expected format
         if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
-          document.getElementById('result').textContent = data.data[0];  // Display the prediction result
+          // Display the prediction result
+          document.getElementById('result').textContent = `Prediction: ${data.data[0]}`;
         } else {
           console.error("Unexpected response format:", data);
           document.getElementById('result').textContent = "Unexpected response format.";
         }
       })
       .catch(error => {
-        console.error('Error:', error);
-        document.getElementById('result').textContent = "Error detecting news.";
+        console.error('Error:', error.message);
+        document.getElementById('result').textContent = `Error detecting news: ${error.message}`;
       });
     } else {
       document.getElementById('result').textContent = "Please enter a news claim.";
