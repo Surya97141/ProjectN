@@ -1,6 +1,6 @@
 document.getElementById('checkButton').addEventListener('click', function() {
   let newsClaim = document.getElementById('newsInput').value;
-  
+
   if (newsClaim) {
     // API call to your Gradio backend hosted on Hugging Face
     fetch("https://su07rya-fakenews01.hf.space/run/predict", {
@@ -12,9 +12,17 @@ document.getElementById('checkButton').addEventListener('click', function() {
         "data": [newsClaim]    // Gradio expects data as a list
       })
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.data && data.data.length > 0) {
+    .then(async response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      // Debugging output to check the structure
+      console.log("API Response:", data);
+
+      // Checking if data is in the expected format
+      if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
         document.getElementById('result').textContent = data.data[0];
       } else {
         document.getElementById('result').textContent = "Unexpected response format.";
