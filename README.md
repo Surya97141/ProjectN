@@ -2,7 +2,7 @@
 title: 🏆 FakeNews01 - Zero-Shot Truth Checker  
 emoji: 🔍  
 colorFrom: pink  
-colorTo: indigo  
+colorTo: indigo 
 sdk: gradio  
 sdk_version: 5.29.0  
 app_file: app.py  
