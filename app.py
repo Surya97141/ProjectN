@@ -25,8 +25,11 @@ static_facts = {
     "the earth revolves around the sun": "✅ FACTUAL - This is a universally accepted scientific fact.",
     "vaccines prevent diseases": "✅ FACTUAL - This is a scientifically proven fact.",
     "water boils at 100 degrees celsius": "✅ FACTUAL - Standard atmospheric pressure.",
+    "water boils at 100 degrees centigrade": "✅ FACTUAL - Standard atmospheric pressure.",
+    "water boils at 100 degrees": "✅ FACTUAL - Standard atmospheric pressure.",
     "humans need oxygen to survive": "✅ FACTUAL - Basic biological principle.",
-    "the earth is flat": "❌ MISLEADING - This is a scientifically disproven claim."
+    "the earth is flat": "❌ MISLEADING - This is a scientifically disproven claim.",
+    "earth is flat": "❌ MISLEADING - This is a scientifically disproven claim."
 }
 
 # 🔍 Improved function for fake news detection
@@ -83,7 +86,9 @@ news_checker = gr.Interface(
         ["COVID-19 vaccines reduce severe illness."],
         ["Drinking bleach cures infections."],
         ["The Earth is flat"],
-        ["Water boils at 100 degrees Celsius"]
+        ["Water boils at 100 degrees Celsius"],
+        ["Water boils at 100 degrees Centigrade"],
+        ["The Earth is Round"]
     ],
     allow_flagging="never"
 )
