@@ -1,3 +1,4 @@
-chrome.runtime.onInstalled.addListener(function () {
-  console.log("Fake News Detector extension installed.");
+// background.js (Service Worker)
+chrome.runtime.onInstalled.addListener(() => {
+  console.log("Fake News Detector Extension Installed!");
 });
