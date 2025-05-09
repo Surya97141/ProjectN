@@ -19,13 +19,14 @@ dangerous_keywords = [
     "bleach", "injection", "poison", "toxic", "acid", "consume", "disinfectant"
 ]
 
-# 🔎 List of universally accepted scientific facts
+# 🔎 List of universally accepted scientific facts and known misleading claims
 static_facts = {
     "the earth is round": "✅ FACTUAL - This is a universally accepted scientific fact.",
     "the earth revolves around the sun": "✅ FACTUAL - This is a universally accepted scientific fact.",
     "vaccines prevent diseases": "✅ FACTUAL - This is a scientifically proven fact.",
     "water boils at 100 degrees celsius": "✅ FACTUAL - Standard atmospheric pressure.",
-    "humans need oxygen to survive": "✅ FACTUAL - Basic biological principle."
+    "humans need oxygen to survive": "✅ FACTUAL - Basic biological principle.",
+    "the earth is flat": "❌ MISLEADING - This is a scientifically disproven claim."
 }
 
 # 🔍 Improved function for fake news detection
@@ -39,7 +40,7 @@ def classify_news(statement):
     if any(keyword in statement_lower for keyword in dangerous_keywords):
         return "❌ HARMFUL - This statement is potentially dangerous!"
 
-    # 🔎 Static fact-checking for well-known scientific facts
+    # 🔎 Static fact-checking for well-known scientific facts and false claims
     if statement_lower in static_facts:
         return static_facts[statement_lower]
 
@@ -96,6 +97,3 @@ api_interface = gr.Interface(
 
 # 🚀 Launch Web UI & API
 gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch()
-
-
-
