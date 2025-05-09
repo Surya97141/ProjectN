@@ -12,7 +12,7 @@ device = 0 if torch.cuda.is_available() else -1
 news_classifier = pipeline('zero-shot-classification', model='facebook/bart-large-mnli', device=device)
 
 # NewsAPI configuration
-NEWS_API_KEY = 'YOUR_NEWSAPI_KEY'
+NEWS_API_KEY = 'YOUR_NEWSAPI_KEY'  # Make sure to replace this with your actual API key
 NEWS_API_URL = 'https://newsapi.org/v2/everything'
 
 # Classification labels for zero-shot
@@ -31,6 +31,7 @@ static_facts = {
 }
 
 def fetch_real_time_news(query):
+    # Parameters for fetching news
     params = {
         'q': query,
         'language': 'en',
@@ -38,9 +39,30 @@ def fetch_real_time_news(query):
         'pageSize': 5,
         'sortBy': 'relevancy'
     }
-    response = requests.get(NEWS_API_URL, params=params)
-    articles = response.json().get('articles', [])
-    return [(article['title'], article['description'], article['url']) for article in articles]
+    
+    try:
+        # Make the API request
+        response = requests.get(NEWS_API_URL, params=params)
+        response.raise_for_status()  # Raise an error for bad status codes
+        data = response.json()
+        
+        # Debugging: print status code and response data
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {data}")
+        
+        # Extract articles
+        articles = data.get('articles', [])
+        
+        # Check if no articles found
+        if not articles:
+            return f'No articles found for query: "{query}". Please try a different query.', []
+        
+        return [(article['title'], article['description'], article['url']) for article in articles]
+    
+    except requests.exceptions.RequestException as e:
+        # Handle request exceptions
+        print(f"Error fetching data: {e}")
+        return f"Error fetching data from NewsAPI: {e}", []
 
 def semantic_similarity(query, articles):
     query_embedding = model.encode(query, convert_to_tensor=True)
@@ -56,7 +78,7 @@ def semantic_similarity(query, articles):
 def verify_news(query):
     articles = fetch_real_time_news(query)
     if not articles:
-        return 'No articles found', []
+        return 'No real-time data found.', []
 
     results = semantic_similarity(query, articles)
     top_result = results[0] if results else None
