@@ -11,7 +11,12 @@ except Exception as e:
     raise RuntimeError(f"⚠️ Model failed to load: {str(e)}")
 
 # 📊 Define classification labels (check model outputs)
-classification_labels = ["factual", "misleading"]
+classification_labels = ["factual", "misleading", "harmful"]
+
+# 🚩 List of dangerous keywords for health claims
+dangerous_keywords = [
+    "bleach", "injection", "poison", "toxic", "acid", "consume", "disinfectant"
+]
 
 # 🔍 Improved function for fake news detection
 def classify_news(statement):
@@ -19,6 +24,10 @@ def classify_news(statement):
     if not statement.strip():
         return "⚠️ Please enter a valid news statement."
     
+    # 🚨 Keyword-based quick detection for harmful content
+    if any(keyword in statement.lower() for keyword in dangerous_keywords):
+        return "❌ HARMFUL - This statement is potentially dangerous!"
+
     try:
         # Run classification
         prediction = news_classifier(statement, classification_labels)
@@ -31,10 +40,12 @@ def classify_news(statement):
         return f"⚠️ Classification Error: {str(e)}"
 
     # 🚨 Improved confidence threshold handling
-    if confidence_score < 0.50:  # Less confident threshold
+    if confidence_score < 0.60:  # Higher confidence threshold
         return f"⚠️ UNCERTAIN ({confidence_score * 100:.2f}%) - Verify with trusted sources!"
     elif predicted_label.lower() == "factual":
         return f"✅ FACTUAL ({confidence_score * 100:.2f}%)"
+    elif predicted_label.lower() == "harmful":
+        return f"❌ HARMFUL ({confidence_score * 100:.2f}%)"
     else:
         return f"❌ MISLEADING ({confidence_score * 100:.2f}%)"
 
@@ -48,13 +59,13 @@ news_checker = gr.Interface(
     fn=classify_news,
     inputs=gr.Textbox(lines=3, placeholder="Enter a news claim...", label="News Statement"),
     outputs=gr.Textbox(label="Prediction"),
-    title="📰 Fake News Detector (Improved Accuracy)",
-    description="Uses a zero-shot classification model (BART) to estimate truthfulness.\n⚠️ Always verify claims with trusted sources!",
+    title="📰 Fake News Detector (Enhanced Safety Check)",
+    description="Uses a zero-shot classification model (BART) to estimate truthfulness and detect harmful content.\n⚠️ Always verify claims with trusted sources!",
     examples=[
         ["The Eiffel Tower is in France."],
         ["Eating chocolate daily increases IQ by 50%."],
         ["COVID-19 vaccines reduce severe illness."],
-        ["Drinking bleach cures infections."],
+        ["Drinking bleach cures infections."]
     ],
     allow_flagging="never"
 )
@@ -68,3 +79,4 @@ api_interface = gr.Interface(
 
 # 🚀 Launch Web UI & API
 gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch()
+
