@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (newsClaim) {
       // API call to your Gradio backend hosted on Hugging Face
-      fetch("https://su07rya-fakenews01.hf.space/api/predict", {   // Corrected the API endpoint
+      fetch("https://su07rya-fakenews01.hf.space/gradio_api/run/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
