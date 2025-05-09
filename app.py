@@ -80,3 +80,5 @@ api_interface = gr.Interface(
 # 🚀 Launch Web UI & API
 gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch()
 
+
+
