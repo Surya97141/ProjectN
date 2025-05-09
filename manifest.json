@@ -2,11 +2,8 @@
   "manifest_version": 3,
   "name": "Fake News Detector",
   "description": "Detect fake news claims directly from your browser.",
-  "version": "1.0",
-  "permissions": [
-    "activeTab",
-    "storage"
-  ],
+  "version": "1.1",
+  "permissions": ["activeTab", "storage"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -14,8 +11,7 @@
       "32": "icon-32.png",
       "48": "icon-48.png",
       "64": "icon-64.png",
-      "128": "icon-128.png",
-      "256": "icon-256.png"
+      "128": "icon-128.png"
     }
   },
   "content_scripts": [
@@ -23,6 +19,9 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
+  ],
+  "host_permissions": [
+    "https://su07rya-fakenews01.hf.space/*"
   ],
   "background": {
     "service_worker": "background.js"
