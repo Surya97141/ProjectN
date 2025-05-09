@@ -35,9 +35,10 @@ static_facts = {
 # 🔍 Improved function for fake news detection
 def classify_news(statement):
     """Processes news statements and ensures better classification accuracy."""
+    
     statement_lower = statement.strip().lower()
-    if not statement_lower:
-        return "⚠️ Please enter a valid news statement."
+    if not statement_lower or len(statement_lower) < 5:
+        return "⚠️ Please enter a valid news statement (at least 5 characters)."
 
     # 🚨 Keyword-based quick detection for harmful content
     if any(keyword in statement_lower for keyword in dangerous_keywords):
@@ -50,6 +51,10 @@ def classify_news(statement):
     try:
         # Run classification
         prediction = news_classifier(statement, classification_labels)
+
+        # Edge case: If labels are not returned, handle it
+        if not prediction["labels"]:
+            return "⚠️ Classification Error: No labels returned. Please try again."
 
         # Extract the best prediction
         predicted_label = prediction["labels"][0]
