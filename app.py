@@ -12,7 +12,7 @@ device = 0 if torch.cuda.is_available() else -1
 news_classifier = pipeline('zero-shot-classification', model='facebook/bart-large-mnli', device=device)
 
 # NewsAPI configuration
-NEWS_API_KEY = 'YOUR_NEWSAPI_KEY'  # Make sure to replace this with your actual API key
+NEWS_API_KEY = 'e6d65818fa7d49fdaec839f83b434851'  
 NEWS_API_URL = 'https://newsapi.org/v2/everything'
 
 # Classification labels for zero-shot
@@ -39,9 +39,9 @@ def fetch_real_time_news(query):
         'pageSize': 5,
         'sortBy': 'relevancy'
     }
-    
+
     try:
-        # Make the API request
+        # Making the API request
         response = requests.get(NEWS_API_URL, params=params)
         response.raise_for_status()  # Raise an error for bad status codes
         data = response.json()
@@ -53,8 +53,9 @@ def fetch_real_time_news(query):
         # Extract articles
         articles = data.get('articles', [])
         
-        # Check if no articles found
+        # Checking if no articles found
         if not articles:
+            print(f"No articles found for query: {query}")
             return f'No articles found for query: "{query}". Please try a different query.', []
         
         return [(article['title'], article['description'], article['url']) for article in articles]
