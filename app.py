@@ -10,7 +10,7 @@ try:
 except Exception as e:
     raise RuntimeError(f"⚠️ Model failed to load: {str(e)}")
 
-# 📊 Updated classification labels (better context)
+# 📊 Define classification labels (check model outputs)
 classification_labels = ["factual", "misleading"]
 
 # 🔍 Improved function for fake news detection
@@ -18,17 +18,25 @@ def classify_news(statement):
     """Processes news statements and ensures better classification accuracy."""
     if not statement.strip():
         return "⚠️ Please enter a valid news statement."
+    
     try:
+        # Run classification
         prediction = news_classifier(statement, classification_labels)
+
+        # Extract results carefully
         predicted_label = prediction["labels"][0]
-        confidence_score = prediction["scores"][0]
+        confidence_score = float(prediction["scores"][0])  # Convert confidence to float
+
+        # Debugging print (optional, remove for production)
+        print(f"🔎 DEBUG: {statement} → Label: {predicted_label}, Confidence: {confidence_score}")
+
     except Exception as e:
         return f"⚠️ Classification Error: {str(e)}"
-    
-    # 🚨 Threshold-based confidence filtering
-    if confidence_score < 0.85:  # More strict accuracy requirement
+
+    # 🚨 Improved confidence threshold handling
+    if confidence_score < 0.70:  # Lower threshold for better accuracy
         return f"⚠️ UNCERTAIN ({confidence_score * 100:.2f}%) - Verify with trusted sources!"
-    elif predicted_label == "factual":
+    elif predicted_label.lower() == "factual":
         return f"✅ FACTUAL ({confidence_score * 100:.2f}%)"
     else:
         return f"❌ MISLEADING ({confidence_score * 100:.2f}%)"
