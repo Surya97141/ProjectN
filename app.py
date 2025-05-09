@@ -23,18 +23,15 @@ def classify_news(statement):
         # Run classification
         prediction = news_classifier(statement, classification_labels)
 
-        # Extract results carefully
+        # Extract the best prediction
         predicted_label = prediction["labels"][0]
-        confidence_score = float(prediction["scores"][0])  # Convert confidence to float
-
-        # Debugging print (optional, remove for production)
-        print(f"🔎 DEBUG: {statement} → Label: {predicted_label}, Confidence: {confidence_score}")
+        confidence_score = prediction["scores"][0]
 
     except Exception as e:
         return f"⚠️ Classification Error: {str(e)}"
 
     # 🚨 Improved confidence threshold handling
-    if confidence_score < 0.70:  # Lower threshold for better accuracy
+    if confidence_score < 0.50:  # Less confident threshold
         return f"⚠️ UNCERTAIN ({confidence_score * 100:.2f}%) - Verify with trusted sources!"
     elif predicted_label.lower() == "factual":
         return f"✅ FACTUAL ({confidence_score * 100:.2f}%)"
@@ -52,16 +49,14 @@ news_checker = gr.Interface(
     inputs=gr.Textbox(lines=3, placeholder="Enter a news claim...", label="News Statement"),
     outputs=gr.Textbox(label="Prediction"),
     title="📰 Fake News Detector (Improved Accuracy)",
-    description="Uses a zero-shot classification model (BART) to estimate truthfulness.\n"
-                "⚠️ Always verify claims with trusted sources!",
+    description="Uses a zero-shot classification model (BART) to estimate truthfulness.\n⚠️ Always verify claims with trusted sources!",
     examples=[
-        ["The Eiffel Tower is in France."],  # Should now return "✅ FACTUAL"
+        ["The Eiffel Tower is in France."],
         ["Eating chocolate daily increases IQ by 50%."],
         ["COVID-19 vaccines reduce severe illness."],
         ["Drinking bleach cures infections."],
     ],
-    allow_flagging="never",
-    theme="default"
+    allow_flagging="never"
 )
 
 # 🌐 Gradio API Endpoint for Browser Extension
@@ -72,5 +67,4 @@ api_interface = gr.Interface(
 )
 
 # 🚀 Launch Web UI & API
-if __name__ == "__main__":
-    gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch(share=True)
+gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch()
