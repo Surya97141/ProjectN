@@ -3,35 +3,35 @@ from transformers import pipeline
 import gradio as gr
 import torch  # For GPU support
 
-# 🚀 Load the zero-shot classification model (BART)
+# 🚀 Load the fact-checking model
 try:
     device = 0 if torch.cuda.is_available() else -1  # Use GPU if available
     news_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=device)
 except Exception as e:
     raise RuntimeError(f"⚠️ Model failed to load: {str(e)}")
 
-# 📊 Define classification labels
-classification_labels = ["true", "false"]
+# 📊 Updated classification labels (better context)
+classification_labels = ["factual", "misleading"]
 
-# 🔍 Function for fake news detection
+# 🔍 Improved function for fake news detection
 def classify_news(statement):
-    """Processes the news statement and returns a classification result."""
+    """Processes news statements and ensures better classification accuracy."""
     if not statement.strip():
         return "⚠️ Please enter a valid news statement."
     try:
         prediction = news_classifier(statement, classification_labels)
-        predicted_label = prediction["labels"][0]  
-        confidence_score = prediction["scores"][0]  
+        predicted_label = prediction["labels"][0]
+        confidence_score = prediction["scores"][0]
     except Exception as e:
         return f"⚠️ Classification Error: {str(e)}"
     
-    # 🚨 Apply confidence threshold corrections
-    if confidence_score < 0.75:
-        return f"⚠️ UNCERTAIN ({confidence_score * 100:.2f}%) - Please verify!"
-    elif predicted_label == "true":
-        return f"✅ LIKELY TRUE ({confidence_score * 100:.2f}%)"
+    # 🚨 Threshold-based confidence filtering
+    if confidence_score < 0.85:  # More strict accuracy requirement
+        return f"⚠️ UNCERTAIN ({confidence_score * 100:.2f}%) - Verify with trusted sources!"
+    elif predicted_label == "factual":
+        return f"✅ FACTUAL ({confidence_score * 100:.2f}%)"
     else:
-        return f"❌ LIKELY FALSE ({confidence_score * 100:.2f}%)"
+        return f"❌ MISLEADING ({confidence_score * 100:.2f}%)"
 
 # 🌐 Gradio API for Browser Extension
 def api_classify_news(statement):
@@ -47,8 +47,8 @@ news_checker = gr.Interface(
     description="Uses a zero-shot classification model (BART) to estimate truthfulness.\n"
                 "⚠️ Always verify claims with trusted sources!",
     examples=[
+        ["The Eiffel Tower is in France."],  # Should now return "✅ FACTUAL"
         ["Eating chocolate daily increases IQ by 50%."],
-        ["The Eiffel Tower is in France."],
         ["COVID-19 vaccines reduce severe illness."],
         ["Drinking bleach cures infections."],
     ],
@@ -56,13 +56,13 @@ news_checker = gr.Interface(
     theme="default"
 )
 
-# 🌐 Gradio API Endpoint for Extension
+# 🌐 Gradio API Endpoint for Browser Extension
 api_interface = gr.Interface(
     fn=api_classify_news,
     inputs=gr.Textbox(label="Enter News Statement"),
     outputs="json",
 )
 
-# 🚀 Launch Both Web UI & API
+# 🚀 Launch Web UI & API
 if __name__ == "__main__":
     gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch(share=True)
