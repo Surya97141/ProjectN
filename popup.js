@@ -16,15 +16,16 @@ document.getElementById('checkButton').addEventListener('click', function() {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      const data = await response.json();
-
+      
       // Debugging output to check the structure
+      const data = await response.json();
       console.log("API Response:", data);
 
       // Checking if data is in the expected format
       if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
         document.getElementById('result').textContent = data.data[0];
       } else {
+        console.error("Unexpected response format:", data);
         document.getElementById('result').textContent = "Unexpected response format.";
       }
     })
