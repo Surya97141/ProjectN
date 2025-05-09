@@ -7,6 +7,7 @@ import torch  # For GPU support
 try:
     device = 0 if torch.cuda.is_available() else -1  # Use GPU if available
     news_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=device)
+    print("✅ Model loaded successfully.")
 except Exception as e:
     raise RuntimeError(f"⚠️ Model failed to load: {str(e)}")
 
@@ -18,15 +19,29 @@ dangerous_keywords = [
     "bleach", "injection", "poison", "toxic", "acid", "consume", "disinfectant"
 ]
 
+# 🔎 List of universally accepted scientific facts
+static_facts = {
+    "the earth is round": "✅ FACTUAL - This is a universally accepted scientific fact.",
+    "the earth revolves around the sun": "✅ FACTUAL - This is a universally accepted scientific fact.",
+    "vaccines prevent diseases": "✅ FACTUAL - This is a scientifically proven fact.",
+    "water boils at 100 degrees celsius": "✅ FACTUAL - Standard atmospheric pressure.",
+    "humans need oxygen to survive": "✅ FACTUAL - Basic biological principle."
+}
+
 # 🔍 Improved function for fake news detection
 def classify_news(statement):
     """Processes news statements and ensures better classification accuracy."""
-    if not statement.strip():
+    statement_lower = statement.strip().lower()
+    if not statement_lower:
         return "⚠️ Please enter a valid news statement."
-    
+
     # 🚨 Keyword-based quick detection for harmful content
-    if any(keyword in statement.lower() for keyword in dangerous_keywords):
+    if any(keyword in statement_lower for keyword in dangerous_keywords):
         return "❌ HARMFUL - This statement is potentially dangerous!"
+
+    # 🔎 Static fact-checking for well-known scientific facts
+    if statement_lower in static_facts:
+        return static_facts[statement_lower]
 
     try:
         # Run classification
@@ -65,7 +80,9 @@ news_checker = gr.Interface(
         ["The Eiffel Tower is in France."],
         ["Eating chocolate daily increases IQ by 50%."],
         ["COVID-19 vaccines reduce severe illness."],
-        ["Drinking bleach cures infections."]
+        ["Drinking bleach cures infections."],
+        ["The Earth is flat"],
+        ["Water boils at 100 degrees Celsius"]
     ],
     allow_flagging="never"
 )
