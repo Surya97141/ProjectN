@@ -2,7 +2,6 @@
 from transformers import pipeline
 import gradio as gr
 import torch  # For GPU support
-from flask import Flask, request, jsonify
 
 # 🚀 Load the zero-shot classification model (BART)
 try:
@@ -34,17 +33,12 @@ def classify_news(statement):
     else:
         return f"❌ LIKELY FALSE ({confidence_score * 100:.2f}%)"
 
-# 🌐 Flask API for Browser Extension
-app = Flask(__name__)
+# 🌐 Gradio API for Browser Extension
+def api_classify_news(statement):
+    """Handles API requests via Gradio."""
+    return {"fake_news": classify_news(statement)}
 
-@app.route('/detect', methods=['POST'])
-def detect_fake_news():
-    """Handles API requests from the browser extension."""
-    data = request.json
-    result = classify_news(data['text'])
-    return jsonify({"fake_news": result})
-
-# 🎨 Gradio Interface for Manual Testing
+# 🎨 Gradio Interface for Manual Testing & API
 news_checker = gr.Interface(
     fn=classify_news,
     inputs=gr.Textbox(lines=3, placeholder="Enter a news claim...", label="News Statement"),
@@ -62,7 +56,13 @@ news_checker = gr.Interface(
     theme="default"
 )
 
+# 🌐 Gradio API Endpoint for Extension
+api_interface = gr.Interface(
+    fn=api_classify_news,
+    inputs=gr.Textbox(label="Enter News Statement"),
+    outputs="json",
+)
+
+# 🚀 Launch Both Web UI & API
 if __name__ == "__main__":
-    # Launch both Gradio interface & Flask API
-    news_checker.launch(share=True)
-    app.run(host="0.0.0.0", port=8000)
+    gr.TabbedInterface([news_checker, api_interface], ["News Detector", "API"]).launch(share=True)
